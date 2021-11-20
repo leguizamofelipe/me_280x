@@ -1,0 +1,1 @@
+/home/ros/catkin_ws/devel/.private/assignment_4/lib/pkgconfig/assignment_4.pc

@@ -1,0 +1,8 @@
+prefix=/home/ros/catkin_ws/devel/.private/final_project
+
+Name: final_project
+Description: Description of final_project
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
