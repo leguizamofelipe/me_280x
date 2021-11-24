@@ -127,7 +127,7 @@ class TurtleBot:
         # feedback loop to keep sending control signal while distance > tolerance
         while self.euclidean_distance(goal_pose) >= distance_tolerance:
 
-            if self.front_laser < 0.75:
+            if self.front_laser < 2:
                 print('Obstacle detected in front. Stopping...')
                 vel_msg.linear.x = 0
                 vel_msg.angular.z = 0
