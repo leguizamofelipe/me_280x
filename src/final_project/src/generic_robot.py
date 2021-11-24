@@ -9,6 +9,7 @@ from geometry_msgs.msg import Twist  # import geometry message package. Twist is
 from nav_msgs.msg import Odometry # import navigation message package. Odometry is the data type to extract turtlebot's position in quaternions
 import tf
 from tf.transformations import euler_from_quaternion #import transformation package, which allows us to convert from quaternions to eulerian coordinates
+import sys
 
 class TurtleBot:
 
@@ -152,7 +153,10 @@ class TurtleBot:
 
 if __name__ == '__main__':
     try:
-        x = TurtleBot()
-        x.move2goal()
+        robot_number = int(sys.argv[1])
+        x_pos = int(sys.argv[2])
+        y_pos = int(sys.argv[3])
+        x = TurtleBot(robot_number)
+        x.move2goal(x_pos, y_pos)
     except rospy.ROSInterruptException:
         pass
