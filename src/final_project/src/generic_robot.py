@@ -128,9 +128,9 @@ class TurtleBot:
         while self.euclidean_distance(goal_pose) >= distance_tolerance:
 
             if self.front_laser < 0.75:
-                print('Obstacle detected in front, modify code below to avoid collision')
-                vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
-                vel_msg.angular.z = self.angular_vel(goal_pose, k_p_angular, k_i_angular, k_d_angular)
+                print('Obstacle detected in front. Stopping...')
+                vel_msg.linear.x = 0
+                vel_msg.angular.z = 0
             else:
                 # Linear velocity in the x-axis.
                 vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)

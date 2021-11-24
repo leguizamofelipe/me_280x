@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # import necessary packages below
 from generic_robot import TurtleBot
+import numpy as np
 import rospy
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
@@ -12,46 +13,19 @@ import time
 import os
 #import pandas as pd
 
+low_boundary = 0
+high_boundary = 10
+
 if __name__ == '__main__':
-    robot_1_process = subprocess.Popen(['python2', 'generic_robot.py', '1', '5', '5'])
-    robot_2_process = subprocess.Popen(['python2', 'generic_robot.py', '2', '5', '5'])
-    robot_3_process = subprocess.Popen(['python2', 'generic_robot.py', '3', '5', '5'])
-    robot_4_process = subprocess.Popen(['python2', 'generic_robot.py', '4', '5', '5'])
-    
-    '''
-    robot_1 = TurtleBot(1)
-    robot_2 = TurtleBot(2)
-    robot_3 = TurtleBot(3)
-    robot_4 = TurtleBot(4)
+    rng = np.random.default_rng(12345)
 
-    robot_1.move2goal(5, 5)
-    robot_2.move2goal(5, 5)
-    robot_3.move2goal(5, 5)
-    robot_4.move2goal(5, 5)
-    '''
-    
-    '''
-    for val in runs:
+    target_1 = [str(int(rng.integers(low=low_boundary, high=high_boundary, size=1))), str(int(rng.integers(low=low_boundary, high=high_boundary, size=1)))]
+    target_2 = [str(int(rng.integers(low=low_boundary, high=high_boundary, size=1))), str(int(rng.integers(low=low_boundary, high=high_boundary, size=1)))]
+    target_3 = [str(int(rng.integers(low=low_boundary, high=high_boundary, size=1))), str(int(rng.integers(low=low_boundary, high=high_boundary, size=1)))]
+    target_4 = [str(int(rng.integers(low=low_boundary, high=high_boundary, size=1))), str(int(rng.integers(low=low_boundary, high=high_boundary, size=1)))]
 
-        process2 = subprocess.Popen(['roslaunch', 'turtlebot3_gazebo', 'turtlebot3_empty_world.launch'])	
-        time.sleep(5)
-
-        x = TurtleBot()
-        run_time = x.move2goal(val, 3)
-        
-        run_times.append(run_time)	
-
-        print("Complete in:")
-        print(run_time)
-        process2.kill()
-        
-        vals_list.append(val)
-    
-    results_dict = {"Vals":vals_list,
-            "Runtime":run_times}
-
-    print(run_times)
-    print(results_dict)
-
-    '''
+    robot_1_process = subprocess.Popen(['python2', 'generic_robot.py', '1', target_1[0], target_1[1]])
+    robot_2_process = subprocess.Popen(['python2', 'generic_robot.py', '2', target_2[0], target_2[1]])
+    robot_3_process = subprocess.Popen(['python2', 'generic_robot.py', '3', target_3[0], target_3[1]])
+    robot_4_process = subprocess.Popen(['python2', 'generic_robot.py', '4', target_4[0], target_4[1]])
     
