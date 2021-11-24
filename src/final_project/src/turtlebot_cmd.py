@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # import necessary packages below
-from final_project.src.generic_robot import TurtleBot
+from generic_robot import TurtleBot
 import rospy
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
@@ -13,10 +13,10 @@ import os
 #import pandas as pd
 
 if __name__ == '__main__':
-    robot_1_process = subprocess.Popen(['python', 'generic_robot.py', '1', '5', '5'])
-    robot_2_process = subprocess.Popen(['python', 'generic_robot.py', '2', '5', '5'])
-    robot_3_process = subprocess.Popen(['python', 'generic_robot.py', '3', '5', '5'])
-    robot_4_process = subprocess.Popen(['python', 'generic_robot.py', '4', '5', '5'])
+    robot_1_process = subprocess.Popen(['python2', 'generic_robot.py', '1', '5', '5'])
+    robot_2_process = subprocess.Popen(['python2', 'generic_robot.py', '2', '5', '5'])
+    robot_3_process = subprocess.Popen(['python2', 'generic_robot.py', '3', '5', '5'])
+    robot_4_process = subprocess.Popen(['python2', 'generic_robot.py', '4', '5', '5'])
     
     '''
     robot_1 = TurtleBot(1)
