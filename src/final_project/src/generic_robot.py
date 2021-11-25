@@ -208,7 +208,7 @@ if __name__ == '__main__':
         elif sys.argv[1] == 'follower':
             robot_number = int(sys.argv[2])
             x = TurtleBot(robot_number)
-            time.sleep(15)
+            #time.sleep(15)
             x.leader_subscriber = rospy.Subscriber('robot'+str(sys.argv[3])+'/odom', Odometry, x.update_target_pose)
             x.target_odom = Odometry
 
