@@ -18,6 +18,8 @@ class TurtleBot:
         # Creates a node with name 'turtlebot_controller' and make sure it is a unique node (using anonymous=True).
         rospy.init_node('turtlebot_controller', anonymous=True)
 
+	self.robot_number = robot_number
+
         # Publisher which will publish to the topic 'robotX/cmd_vel'.
         self.velocity_publisher = rospy.Publisher('robot'+str(robot_number)+'/cmd_vel', Twist, queue_size=10)
 
@@ -171,6 +173,7 @@ class TurtleBot:
     def follow_robot(self):
         start_time = time.time()
         while(time.time() - start_time < 45):
+	    print('Robot {} targets x:{}, y:{}'.format(self.robot_number, self.target_robot_pos_x, self.target_robot_pos_y))
             self.move2goal(self.target_robot_pos_x, self.target_robot_pos_y)
 
 
@@ -211,6 +214,7 @@ if __name__ == '__main__':
             #time.sleep(15)
             x.leader_subscriber = rospy.Subscriber('robot'+str(sys.argv[3])+'/odom', Odometry, x.update_target_pose)
             x.target_odom = Odometry
+	    rospy.sleep(0.5)
 
             x.follow_robot()
 

@@ -29,6 +29,6 @@ if __name__ == '__main__':
     robot_2_process = subprocess.Popen(['python2', 'generic_robot.py', 'goto_xy', '2', target_2[0], target_2[1]])
 
 
-    robot_3_process = subprocess.Popen(['python2', 'generic_robot.py', 'follower', '1'])
-    robot_4_process = subprocess.Popen(['python2', 'generic_robot.py', 'follower', '2'])
+    robot_3_process = subprocess.Popen(['python2', 'generic_robot.py', 'follower', '3', '1'])
+    robot_4_process = subprocess.Popen(['python2', 'generic_robot.py', 'follower', '4', '2'])
     
