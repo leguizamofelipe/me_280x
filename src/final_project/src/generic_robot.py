@@ -94,7 +94,7 @@ class TurtleBot:
 
         return k_p*(self.angular_error) + k_i*(self.sum_angular_error) + k_d*(self.angular_error - self.previous_angular_error)
 
-    def move2goal(self, goal_x, goal_y, request_input = False):
+    def move2goal(self, goal_x, goal_y, request_input = False, update_pose_for_following = False):
         """Moves the turtlebot to the goal."""
 
         # Creates a pose object
@@ -156,14 +156,24 @@ class TurtleBot:
 
                 # Angular velocity in the z-axis.
                 vel_msg.angular.z = self.angular_vel(goal_pose, k_p_angular, k_i_angular, k_d_angular)
-            
-            print('Robot {} targets x:{}, y:{}'.format(self.robot_number, self.target_robot_pos_x, self.target_robot_pos_y))
+
+            '''
+            try:
+                print('Robot {} targets x:{}, y:{}'.format(self.robot_number, self.target_robot_pos_x, self.target_robot_pos_y))
+            except:
+                pass
+            '''
 
             # Publishing our vel_msg
             self.velocity_publisher.publish(vel_msg)
 
             # Publish at the desired rate.
             self.rate.sleep()
+
+            if update_pose_for_following:
+                goal_pose.x = self.target_robot_pos_x
+                goal_pose.y = self.target_robot_pos_y
+                
 
         # Stopping our robot after destination is reached
         vel_msg.linear.x = 0
@@ -176,7 +186,7 @@ class TurtleBot:
         start_time = time.time()
         while(time.time() - start_time < 45):
             print('Robot {} targets x:{}, y:{}'.format(self.robot_number, self.target_robot_pos_x, self.target_robot_pos_y))
-            self.move2goal(self.target_robot_pos_x, self.target_robot_pos_y)
+            self.move2goal(self.target_robot_pos_x, self.target_robot_pos_y, update_pose_for_following = True)
             
 if __name__ == '__main__':
     try:
