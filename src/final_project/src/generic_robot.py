@@ -93,6 +93,8 @@ class TurtleBot:
         goal_pose = Pose()
 
         # Default PID Tunes
+	
+	'''
         k_p = 0.05
         k_i = 0.001
         k_d = 0
@@ -100,6 +102,16 @@ class TurtleBot:
         k_p_angular = 0.2
         k_i_angular = 0.001
         k_d_angular = 0
+	'''
+	
+        k_p = 0.06
+        k_i = 0.001
+        k_d = 0.001
+
+        k_p_angular = 0.3
+        k_i_angular = 0.001
+        k_d_angular = 0.001
+	
 
         distance_tolerance = 0.1
 
