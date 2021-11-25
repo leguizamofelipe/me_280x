@@ -10,6 +10,7 @@ from nav_msgs.msg import Odometry # import navigation message package. Odometry 
 import tf
 from tf.transformations import euler_from_quaternion #import transformation package, which allows us to convert from quaternions to eulerian coordinates
 import sys
+import time
 
 class TurtleBot:
 
@@ -50,6 +51,11 @@ class TurtleBot:
                                                                self.odom.pose.pose.orientation.z,self.odom.pose.pose.orientation.w))
         # we only use yaw angle since in this case, turtlebot is constrained to rotation around the z-axis
         self.theta = self.yaw
+
+    def update_target_pose(self, data):
+        self.target_odom = data
+        self.target_robot_pos_x = round(self.target_odom.pose.pose.position.x, 4)
+        self.target_robot_pos_y = round(self.target_odom.pose.pose.position.y, 4)
 
     def update_scan(self, data):
         """Callback function that is called when a new message of type LaserScan is received by the laser_subscriber."""
@@ -111,7 +117,6 @@ class TurtleBot:
         k_p_angular = 0.3
         k_i_angular = 0.001
         k_d_angular = 0.001
-	
 
         distance_tolerance = 0.1
 
@@ -163,12 +168,52 @@ class TurtleBot:
 
         print('Arrived at location x:{}, y:{}'.format(self.pos_x, self.pos_y))
 
+    def follow_robot(self):
+        start_time = time.time()
+        while(time.time() - start_time < 45):
+            self.move2goal(self.target_robot_pos_x, self.target_robot_pos_y)
+
+
+
 if __name__ == '__main__':
     try:
-        robot_number = int(sys.argv[1])
-        x_pos = int(sys.argv[2])
-        y_pos = int(sys.argv[3])
-        x = TurtleBot(robot_number)
-        x.move2goal(x_pos, y_pos)
+        # Arguments:
+        # 1 - select mode (str)
+        # 2 - robot number (int)
+        # 3 - x_pos target (int)
+        # 4 - y_pos target (int)
+        if sys.argv[1] == 'goto_xy':
+            robot_number = int(sys.argv[2])
+            x_pos = int(sys.argv[3])
+            y_pos = int(sys.argv[4])
+            x = TurtleBot(robot_number)
+            x.move2goal(x_pos, y_pos)
+
+        # Arguments:
+        # 1 - select mode (str)
+        # 2 - robot number (int)
+        # 3 - x_pos target (int)
+        # 4 - y_pos target (int)
+        elif sys.argv[1] == 'leader':
+            robot_number = int(sys.argv[2])
+            x_pos = int(sys.argv[3])
+            y_pos = int(sys.argv[4])
+            x = TurtleBot(robot_number)
+            x.move2goal(x_pos, y_pos)
+
+        # Arguments:
+        # 1 - select mode (str)
+        # 2 - robot number (int)
+        # 3 - target robot (int)
+        elif sys.argv[1] == 'follower':
+            robot_number = int(sys.argv[2])
+            x = TurtleBot(robot_number)
+            time.sleep(15)
+            x.leader_subscriber = rospy.Subscriber('robot'+str(sys.argv[3])+'/odom', Odometry, x.update_target_pose)
+            x.target_odom = Odometry
+
+            x.follow_robot()
+
+
     except rospy.ROSInterruptException:
         pass
