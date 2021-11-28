@@ -99,17 +99,17 @@ class TurtleBot:
 
         # Creates a pose object
         goal_pose = Pose()
-
-        # Default PID Tunes
     
         '''
-        k_p = 0.05
-        k_i = 0.001
-        k_d = 0
+        Default PID Tunes - from 11/27 Teams call. They work for the most part, but are slow
 
-        k_p_angular = 0.2
+        k_p = 0.06
+        k_i = 0.001
+        k_d = 0.001
+
+        k_p_angular = 0.3
         k_i_angular = 0.001
-        k_d_angular = 0
+        k_d_angular = 0.001
         '''
     
         k_p = 0.06
