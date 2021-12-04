@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 # import necessary packages below
 from generic_robot import TurtleBot
 import numpy as np

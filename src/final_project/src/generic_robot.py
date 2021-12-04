@@ -1,4 +1,4 @@
-#! /usr/bin/env python2.7 
+#! /usr/bin/env python2.7
 # we need 2.7 to import tf
 
 import rospy # import rospy, a ROS-python wrapper 
@@ -11,7 +11,7 @@ import tf
 from tf.transformations import euler_from_quaternion #import transformation package, which allows us to convert from quaternions to eulerian coordinates
 import sys
 import time
-import trouve as tv
+#import trouve as tv
 import numpy as np
 
 angles_list = np.array(range(-90,90,5))
