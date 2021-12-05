@@ -11,7 +11,7 @@ import tf
 from tf.transformations import euler_from_quaternion #import transformation package, which allows us to convert from quaternions to eulerian coordinates
 import sys
 import time
-#import trouve as tv
+import trouve as tv
 import numpy as np
 
 angles_list = np.array(range(-90,90,5))
@@ -58,6 +58,30 @@ class TurtleBot:
                                                                self.odom.pose.pose.orientation.z,self.odom.pose.pose.orientation.w))
         # we only use yaw angle since in this case, turtlebot is constrained to rotation around the z-axis
         self.theta = self.yaw
+
+    def target_open_space(self, input_data, distance_threshold):
+        pass_zones = tv.find_events(input_data > distance_threshold, period = 1)
+        #blocked_zones = tv.find_events(input_data <= distance_threshold, period = 1)
+
+        centers = []
+        center = distance_threshold
+
+        true_center = len(input_data)/2
+        target = len(input_data)
+
+        for zone in pass_zones:
+            center = (zone.stop + zone.start) / 2
+
+            if abs(center) < target:
+                target = center
+                if center > true_center: #Turn Right
+                    print("Turn Right")
+                else:
+                    print("Turn Left")
+
+            centers.append(center)
+
+        abs(centers)
 
     def update_target_pose(self, data):
         self.target_odom = data
@@ -163,6 +187,8 @@ class TurtleBot:
                 print('Obstacle detected in front. Stopping...')
                 vel_msg.linear.x = 0
                 vel_msg.angular.z = 0
+
+                self.target_open_space(self.scanning_array, 2)
             else:
                 # Linear velocity in the x-axis.
                 vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
@@ -193,18 +219,6 @@ class TurtleBot:
         while(time.time() - start_time < 45):
             print('Robot {} targets x:{}, y:{}'.format(self.robot_number, self.target_robot_pos_x, self.target_robot_pos_y))
             self.move2goal(self.target_robot_pos_x, self.target_robot_pos_y, update_pose_for_following = True)
-
-    def find_pass_zones(self, input_data, distance_threshold):
-        pass_zones = tv.find_events(input_data > distance_threshold, period = 1)
-        blocked_zones = tv.find_events(input_data <= distance_threshold, period = 1)
-
-        centers = []
-
-        for zone in pass_zones:
-            center = (zone.stop + zone.start) / 2
-            centers.append(center)
-
-        print(centers)
 
             
 if __name__ == '__main__':
