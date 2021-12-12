@@ -14,8 +14,9 @@ import time
 import trouve as tv
 import numpy as np
 
-angles_list = np.array(range(-90,90,5))
+angles_list = np.array(range(-90,91,5))
 angles_list[angles_list<0] +=360
+angles_list = np.flip(angles_list, 0)
 
 class TurtleBot:
 
@@ -63,27 +64,28 @@ class TurtleBot:
         pass_zones = tv.find_events(input_data > distance_threshold, period = 1)
         #blocked_zones = tv.find_events(input_data <= distance_threshold, period = 1)
 
-        centers = []
-        center = distance_threshold
-
         true_center = len(input_data)/2
-        target = len(input_data)
 
-        print(input_data)
+        # print(input_data)
+        target = 0
 
         for zone in pass_zones:
             center = (zone.stop + zone.start) / 2
+            # print(str(zone.start) + "," + str(zone.stop))
+            # print(center)
 
-            if abs(center) < target:
+            if abs(true_center - center) < abs(true_center - target):
                 target = center
-                if center > true_center and abs(center-true_center)>3: #Turn Right
-                    print("Turn Right")
-                elif center < true_center and abs(center-true_center)>3:
-                    print("Turn Left")
-                else:
-                    print("Go Straight")
 
-            centers.append(center)
+        if target > true_center and abs(target-true_center)>3: #Turn Right
+            print("Turn Right")
+            # print("Center = {}, true center = {}".format(str(center), str(true_center)))
+        elif target < true_center and abs(target-true_center)>3:
+            print("Turn Left")
+            # print("Center = {}, true center = {}".format(str(center), str(true_center)))
+        else:
+            print("Go Straight")
+
 
     def update_target_pose(self, data):
         self.target_odom = data
@@ -269,7 +271,7 @@ if __name__ == '__main__':
             robot_number = int(sys.argv[2])
             x = TurtleBot(robot_number)
             #time.sleep(15)
-            while(x.scanning_array<2): 
+            while(True): 
                 x.target_open_space(x.scanning_array, 2)
 
             #x.follow_robot()
