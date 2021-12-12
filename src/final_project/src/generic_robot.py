@@ -25,6 +25,7 @@ class TurtleBot:
         rospy.init_node('turtlebot_controller', anonymous=True)
 
         self.robot_number = robot_number
+        self.obstacle_avoidance = "Straight"
 
         # Publisher which will publish to the topic 'robotX/cmd_vel'.
         self.velocity_publisher = rospy.Publisher('robot'+str(robot_number)+'/cmd_vel', Twist, queue_size=10)
@@ -77,14 +78,20 @@ class TurtleBot:
             if abs(true_center - center) < abs(true_center - target):
                 target = center
 
+        angular_vel = 0.5
+        linear_vel = 0
+
         if target > true_center and abs(target-true_center)>3: #Turn Right
-            print("Turn Right")
+            self.obstacle_avoidance = "Right"
             # print("Center = {}, true center = {}".format(str(center), str(true_center)))
+            return linear_vel, angular_vel * -1
         elif target < true_center and abs(target-true_center)>3:
-            print("Turn Left")
+            self.obstacle_avoidance = "Left"
             # print("Center = {}, true center = {}".format(str(center), str(true_center)))
+            return linear_vel, angular_vel
         else:
-            print("Go Straight")
+            self.obstacle_avoidance = "Straight"
+            return linear_vel, 0
 
 
     def update_target_pose(self, data):
@@ -188,10 +195,11 @@ class TurtleBot:
 
             if self.front_laser < 2:
                 print('Obstacle detected in front. Stopping...')
-                vel_msg.linear.x = 0
-                vel_msg.angular.z = 0
+                # vel_msg.linear.x = 0
+                # vel_msg.angular.z = 0
 
-                self.target_open_space(self.scanning_array, 2)
+                vel_msg.linear.x, vel_msg.angular.z = self.target_open_space(self.scanning_array, 2) # Return angular velocity depending on obstacle to the right or left
+                
             else:
                 # Linear velocity in the x-axis.
                 vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
