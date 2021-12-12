@@ -69,19 +69,21 @@ class TurtleBot:
         true_center = len(input_data)/2
         target = len(input_data)
 
+        print(input_data)
+
         for zone in pass_zones:
             center = (zone.stop + zone.start) / 2
 
             if abs(center) < target:
                 target = center
-                if center > true_center: #Turn Right
+                if center > true_center and abs(center-true_center)>3: #Turn Right
                     print("Turn Right")
-                else:
+                elif center < true_center and abs(center-true_center)>3:
                     print("Turn Left")
+                else:
+                    print("Go Straight")
 
             centers.append(center)
-
-        abs(centers)
 
     def update_target_pose(self, data):
         self.target_odom = data
@@ -99,8 +101,7 @@ class TurtleBot:
         for count, angle in enumerate(angles_list):
             self.scanning_array[count] = data.ranges[angle]
 
-        print("Robot " + str(self.robot_number) + " scanning array:")
-        print(self.scanning_array)
+        #print(self.scanning_array)
 
     def euclidean_distance(self, goal_pose):
         """Euclidean distance between current pose and the goal."""
@@ -260,6 +261,18 @@ if __name__ == '__main__':
             rospy.sleep(0.5)
 
             x.follow_robot()
+
+        # Arguments:
+        # 1 - select mode (str)
+        # 2 - robot number (int)
+        elif sys.argv[1] == 'collision-test':
+            robot_number = int(sys.argv[2])
+            x = TurtleBot(robot_number)
+            #time.sleep(15)
+            while(x.scanning_array<2): 
+                x.target_open_space(x.scanning_array, 2)
+
+            #x.follow_robot()
 
     except rospy.ROSInterruptException:
         pass

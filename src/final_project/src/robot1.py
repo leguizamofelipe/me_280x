@@ -138,6 +138,6 @@ class TurtleBot:
 if __name__ == '__main__':
     try:
         x = TurtleBot()
-        x.move2goal()
+        #x.move2goal()
     except rospy.ROSInterruptException:
         pass
