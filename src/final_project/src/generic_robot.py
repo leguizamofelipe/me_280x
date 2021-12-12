@@ -78,7 +78,7 @@ class TurtleBot:
             if abs(true_center - center) < abs(true_center - target):
                 target = center
 
-        angular_vel = 0.5
+        angular_vel = 1
         linear_vel = 0
 
         if target > true_center and abs(target-true_center)>3: #Turn Right
@@ -104,6 +104,8 @@ class TurtleBot:
 
         # updates distance to any obstacle in front of turtlebot
         self.front_laser = data.ranges[0]
+        self.left_laser = data.ranges[15]
+        self.right_laser = data.ranges[-15]
 
         self.scanning_array = np.zeros(len(angles_list))
 
@@ -193,8 +195,8 @@ class TurtleBot:
         # feedback loop to keep sending control signal while distance > tolerance
         while self.euclidean_distance(goal_pose) >= distance_tolerance:
 
-            if self.front_laser < 2:
-                print('Obstacle detected in front. Stopping...')
+            if self.front_laser < 1 or self.left_laser < 1 or self.right_laser < 1:
+                # print('Obstacle detected in front. Stopping...')
                 # vel_msg.linear.x = 0
                 # vel_msg.angular.z = 0
 
