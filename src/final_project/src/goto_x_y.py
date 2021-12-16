@@ -14,7 +14,7 @@ import os
 import random
 #import pandas as pd
 
-low_boundary = 0
+low_boundary = 5
 high_boundary = 10
 
 if __name__ == '__main__':

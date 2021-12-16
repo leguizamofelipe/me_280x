@@ -50,6 +50,9 @@ class TurtleBot:
         self.previous_angular_error = 0
         self.sum_angular_error = 0
 
+        self.previous_angular_speed = 0
+        self.previous_linear_speed = 0
+
     def update_pose(self, data):
         """Callback function that is called when a new message of type Pose is received by the pose_subscriber."""
         self.odom = data
@@ -72,26 +75,28 @@ class TurtleBot:
 
         for zone in pass_zones:
             center = (zone.stop + zone.start) / 2
-            # print(str(zone.start) + "," + str(zone.stop))
-            # print(center)
-
+            print(str(zone.start) + "," + str(zone.stop))
+            print('*')
             if abs(true_center - center) < abs(true_center - target):
                 target = center
 
         angular_vel = 1
-        linear_vel = 0
+        linear_vel = 0.25
+
+        print(input_data)
 
         if target > true_center and abs(target-true_center)>3: #Turn Right
             self.obstacle_avoidance = "Right"
-            # print("Center = {}, true center = {}".format(str(center), str(true_center)))
+            print("Robot {} - Right".format(str(self.robot_number)))
             return linear_vel, angular_vel * -1
         elif target < true_center and abs(target-true_center)>3:
             self.obstacle_avoidance = "Left"
-            # print("Center = {}, true center = {}".format(str(center), str(true_center)))
+            print("Robot {} - Left".format(str(self.robot_number)))
             return linear_vel, angular_vel
         else:
+            print("Robot {} - Straight".format(str(self.robot_number)))
             self.obstacle_avoidance = "Straight"
-            return linear_vel, 0
+            return 0.75, 0
 
 
     def update_target_pose(self, data):
@@ -104,9 +109,11 @@ class TurtleBot:
 
         # updates distance to any obstacle in front of turtlebot
         self.front_laser = data.ranges[0]
-        self.left_laser = data.ranges[15]
-        self.right_laser = data.ranges[-15]
+        #self.left_laser = data.ranges[15]
+        #self.right_laser = data.ranges[-15]
 
+        self.front_array = np.array([data.ranges[315], data.ranges[330], data.ranges[345], data.ranges[0], data.ranges[15], data.ranges[30], data.ranges[45]])
+    
         self.scanning_array = np.zeros(len(angles_list))
 
         for count, angle in enumerate(angles_list):
@@ -159,17 +166,20 @@ class TurtleBot:
         k_p_angular = 0.3
         k_i_angular = 0.001
         k_d_angular = 0.001
+        
+        
+        k_p = 0.1
+        k_i = 0.003 #0.003
+        k_d = 0.1
+
+        k_p_angular = 0.5
+        k_i_angular = 0 #0.003
+        k_d_angular = 0.005
         '''
-    
-        k_p = 0.06
-        k_i = 0.001
-        k_d = 0.001
+        distance_tolerance = 0.2
 
-        k_p_angular = 0.3
-        k_i_angular = 0.001
-        k_d_angular = 0.001
-
-        distance_tolerance = 0.1
+        speed_limit = 2
+        angular_speed_limit = 1.5
 
         goal_pose.x = goal_x
         goal_pose.y = goal_y
@@ -192,22 +202,87 @@ class TurtleBot:
         # Instantiate Twist object to send mesg to turtlebot
         vel_msg = Twist()
 
-        # feedback loop to keep sending control signal while distance > tolerance
-        while self.euclidean_distance(goal_pose) >= distance_tolerance:
+        permanent_fine_tune = False
+        smoothing = True
+        ran_collision = False
 
-            if self.front_laser < 1 or self.left_laser < 1 or self.right_laser < 1:
+        # feedback loop to keep sending control signal while distance > tolerance
+
+        while self.euclidean_distance(goal_pose) >= distance_tolerance:
+            
+            #Precision tunes when approaching target
+            
+            if (self.euclidean_distance(goal_pose) <= 1.5 and vel_msg.linear.x > 2) or permanent_fine_tune == True:
+                # Use different set of tunes when coming in at high speeds to target
+                # Set Boolean flag to ground the robot to using these tunes when close to target
+                k_p = 0.03
+                k_i = 0.001
+                k_d = 0
+
+                k_p_angular = 0.3
+                k_i_angular = 0
+                k_d_angular = 0
+
+                permanent_fine_tune = True
+                smoothing = False
+            else:
+                k_p = 0.08
+                k_i = 0.001
+                k_d = 0.01
+
+                k_p_angular = 0.5
+                k_i_angular = 0
+                k_d_angular = 0.005
+                
+
+            if (self.front_array < 1.5).sum() > 1: #self.front_laser < 1.5 or self.left_laser < 1.5 or self.right_laser < 1.5:
                 # print('Obstacle detected in front. Stopping...')
                 # vel_msg.linear.x = 0
                 # vel_msg.angular.z = 0
-
-                vel_msg.linear.x, vel_msg.angular.z = self.target_open_space(self.scanning_array, 2) # Return angular velocity depending on obstacle to the right or left
                 
+                # Return angular velocity depending on obstacle to the right or left
+                vel_msg.linear.x, vel_msg.angular.z = self.target_open_space(self.scanning_array, 1.75) 
+                self.sum_angular_error = 0
+                self.sum_distance_error = 0
+
+                ran_collision = True
+                collision_start = time.time()
             else:
                 # Linear velocity in the x-axis.
-                vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
+                if smoothing:
+                    vel_msg.linear.x = (self.linear_vel(goal_pose, k_p, k_i, k_d) + self.previous_linear_speed) / 2
 
-                # Angular velocity in the z-axis.
-                vel_msg.angular.z = self.angular_vel(goal_pose, k_p_angular, k_i_angular, k_d_angular)
+                    # Angular velocity in the z-axis.
+                    vel_msg.angular.z = (self.angular_vel(goal_pose, k_p_angular, k_i_angular, k_d_angular) + self.previous_angular_speed) / 2
+                else:
+                    vel_msg.linear.x = self.linear_vel(goal_pose, k_p, k_i, k_d)
+
+                    # Angular velocity in the z-axis.
+                    vel_msg.angular.z = self.angular_vel(goal_pose, k_p_angular, k_i_angular, k_d_angular)
+
+                # Getting out of control with linear speed
+                if vel_msg.linear.x > speed_limit:
+                    vel_msg.linear.x = speed_limit
+                    # print('Robot {} hit linear velocity limit'.format(str(self.robot_number)))
+                    self.sum_distance_error = self.sum_distance_error * 0.15
+
+                if ran_collision:
+                    if time.time() - collision_start > 20: ran_collision = False
+
+                # Getting out of control with angular speed
+                if abs(vel_msg.angular.z) > angular_speed_limit * 0.5:
+                    if not ran_collision:
+                        vel_msg.linear.x = vel_msg.linear.x * 0.1
+                        direction = np.sign(vel_msg.angular.z)
+                        vel_msg.angular.z = direction * angular_speed_limit
+
+                    self.sum_angular_error = self.sum_angular_error * 0.25
+                    # print('Robot {} hit angular limit'.format(str(self.robot_number)))
+            
+            # print('Robot {}. Linear {}'.format(str(self.robot_number), str(vel_msg.linear.x)))
+            # print('Robot {}. Angular {}'.format(str(self.robot_number), str(vel_msg.angular.z)))
+            # print('*************************************')
+            
 
             # Publishing our vel_msg
             self.velocity_publisher.publish(vel_msg)
@@ -218,6 +293,10 @@ class TurtleBot:
             if update_pose_for_following:
                 goal_pose.x = self.target_robot_pos_x
                 goal_pose.y = self.target_robot_pos_y
+
+            # Store commanded linear and angular speed 
+            self.previous_linear_speed = vel_msg.linear.x
+            self.previous_angular_speed = vel_msg.angular.z
                 
 
         # Stopping our robot after destination is reached
