@@ -23,6 +23,6 @@ if __name__ == '__main__':
 
     print('Target for robot 1:' + str(target_1))
 
-    robot_1_process = subprocess.Popen(['python2', 'generic_robot.py', 'goto_xy', '4', target_1[0], target_1[1]])
+    robot_1_process = subprocess.Popen(['python2', 'generic_robot.py', 'goto_xy', '1', target_1[0], target_1[1]])
 
     

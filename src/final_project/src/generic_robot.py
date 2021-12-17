@@ -75,23 +75,23 @@ class TurtleBot:
 
         for zone in pass_zones:
             center = (zone.stop + zone.start) / 2
-            print(str(zone.start) + "," + str(zone.stop))
-            print('*')
+            # print(str(zone.start) + "," + str(zone.stop))
+            # print('*')
             if abs(true_center - center) < abs(true_center - target):
                 target = center
 
         angular_vel = 1
         linear_vel = 0.25
 
-        print(input_data)
+        # print(input_data)
 
         if target > true_center and abs(target-true_center)>3: #Turn Right
             self.obstacle_avoidance = "Right"
-            print("Robot {} - Right".format(str(self.robot_number)))
+            # print("Robot {} - Right".format(str(self.robot_number)))
             return linear_vel, angular_vel * -1
         elif target < true_center and abs(target-true_center)>3:
             self.obstacle_avoidance = "Left"
-            print("Robot {} - Left".format(str(self.robot_number)))
+            # print("Robot {} - Left".format(str(self.robot_number)))
             return linear_vel, angular_vel
         else:
             print("Robot {} - Straight".format(str(self.robot_number)))
@@ -309,7 +309,7 @@ class TurtleBot:
     def follow_robot(self):
         start_time = time.time()
         while(time.time() - start_time < 45):
-            print('Robot {} targets x:{}, y:{}'.format(self.robot_number, self.target_robot_pos_x, self.target_robot_pos_y))
+            # print('Robot {} targets x:{}, y:{}'.format(self.robot_number, self.target_robot_pos_x, self.target_robot_pos_y))
             self.move2goal(self.target_robot_pos_x, self.target_robot_pos_y, update_pose_for_following = True)
 
             
